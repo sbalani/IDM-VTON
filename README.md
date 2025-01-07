@@ -4,7 +4,7 @@
 
 <a href='https://idm-vton.github.io'><img src='https://img.shields.io/badge/Project-Page-green'></a>
 <a href='https://arxiv.org/abs/2403.05139'><img src='https://img.shields.io/badge/Paper-Arxiv-red'></a>
-<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-blue'></a>
+<a href='https://huggingface.co/spaces/yisol/IDM-VTON'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Demo-yellow'></a>
 <a href='https://huggingface.co/yisol/IDM-VTON'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue'></a>
 
 
@@ -19,14 +19,6 @@ Star ⭐ us if you like it!
 
 ![teaser2](assets/teaser2.png)&nbsp;
 ![teaser](assets/teaser.png)&nbsp;
-
-
-## TODO LIST
-
-
-- [x] demo model
-- [x] inference code
-- [ ] training code
 
 
 
@@ -45,14 +37,18 @@ conda activate idm
 ### VITON-HD
 You can download VITON-HD dataset from [VITON-HD](https://github.com/shadow2496/VITON-HD).
 
-After download VITON-HD dataset, move vitonhd_test_tagged.json into the test folder.
+After download VITON-HD dataset, move vitonhd_test_tagged.json into the test folder, and move vitonhd_train_tagged.json into the train folder.
 
 Structure of the Dataset directory should be as follows.
 
 ```
 
 train
-|-- ...
+|-- image
+|-- image-densepose
+|-- agnostic-mask
+|-- cloth
+|-- vitonhd_train_tagged.json
 
 test
 |-- image
@@ -89,6 +85,35 @@ DressCode
     |-- image-densepose
     |-- dc_caption.txt
     |-- ...
+```
+
+
+## Training
+
+
+### Preparation
+
+Download pre-trained ip-adapter for sdxl(IP-Adapter/sdxl_models/ip-adapter-plus_sdxl_vit-h.bin) and image encoder(IP-Adapter/models/image_encoder) [here](https://github.com/tencent-ailab/IP-Adapter).
+
+```
+git clone https://huggingface.co/h94/IP-Adapter
+```
+
+Move ip-adapter to ckpt/ip_adapter, and image encoder to ckpt/image_encoder.
+
+Start training using python file with arguments,
+
+```
+accelerate launch train_xl.py \
+    --gradient_checkpointing --use_8bit_adam \
+    --output_dir=result --train_batch_size=6 \
+    --data_dir=DATA_DIR
+```
+
+or, you can simply run with the script file.
+
+```
+sh train_xl.sh
 ```
 
 
@@ -136,27 +161,73 @@ or, you can simply run with the script file.
 sh inference.sh
 ```
 
+## Start a local gradio demo <a href='https://github.com/gradio-app/gradio'><img src='https://img.shields.io/github/stars/gradio-app/gradio'></a>
+
+Download checkpoints for human parsing [here](https://huggingface.co/spaces/yisol/IDM-VTON/tree/main/ckpt).
+
+Place the checkpoints under the ckpt folder.
+```
+ckpt
+|-- densepose
+    |-- model_final_162be9.pkl
+|-- humanparsing
+    |-- parsing_atr.onnx
+    |-- parsing_lip.onnx
+
+|-- openpose
+    |-- ckpts
+        |-- body_pose_model.pth
+    
+```
+
+
+
+
+Run the following command:
+
+```python
+python gradio_demo/app.py
+```
+
+
+
+
+
 
 ## Acknowledgements
 
-For the [demo](https://huggingface.co/spaces/yisol/IDM-VTON), GPUs are supported from [ZeroGPU](https://huggingface.co/zero-gpu-explorers), and masking generation codes are based on [OOTDiffusion](https://github.com/levihsu/OOTDiffusion) and [DCI-VTON](https://github.com/bcmi/DCI-VTON-Virtual-Try-On).
 
-Parts of our code are based on [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter).
+Thanks [ZeroGPU](https://huggingface.co/zero-gpu-explorers) for providing free GPU.
+
+Thanks [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter) for base codes.
+
+Thanks [OOTDiffusion](https://github.com/levihsu/OOTDiffusion) and [DCI-VTON](https://github.com/bcmi/DCI-VTON-Virtual-Try-On) for masking generation.
+
+Thanks [SCHP](https://github.com/GoGoDuck912/Self-Correction-Human-Parsing) for human segmentation.
+
+Thanks [Densepose](https://github.com/facebookresearch/DensePose) for human densepose.
+
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=yisol/IDM-VTON&type=Date)](https://star-history.com/#yisol/IDM-VTON&Date)
 
 
 
 ## Citation
 ```
 @article{choi2024improving,
-  title={Improving Diffusion Models for Virtual Try-on},
+  title={Improving Diffusion Models for Authentic Virtual Try-on in the Wild},
   author={Choi, Yisol and Kwak, Sangkyung and Lee, Kyungmin and Choi, Hyungwon and Shin, Jinwoo},
   journal={arXiv preprint arXiv:2403.05139},
   year={2024}
 }
 ```
 
+
+
 ## License
 The codes and checkpoints in this repository are under the [CC BY-NC-SA 4.0 license](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
-
 
 
