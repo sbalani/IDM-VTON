@@ -53,9 +53,8 @@ example_path = os.path.join(os.path.dirname(__file__), 'example')
 
 def start_tryon(dict, garm_img, garment_des, category, is_checked, is_checked_crop, denoise_steps, is_randomize_seed, seed, number_of_images):
     global pipe, unet, UNet_Encoder, need_restart_cpu_offloading
-    print("Starting try-on process...") # Added log
+
     if pipe == None:
-        print("Initializing pipeline...") # Added log        
         unet = UNet2DConditionModel.from_pretrained(
             model_id,
             subfolder="unet",
@@ -132,10 +131,8 @@ def start_tryon(dict, garm_img, garment_des, category, is_checked, is_checked_cr
             )
     
     if need_restart_cpu_offloading:
-        print("Restarting CPU offload...") # Added log
         restart_cpu_offload(pipe, load_mode)
     elif ENABLE_CPU_OFFLOAD:
-        print("Enabling CPU offload...") # Added log        
         pipe.enable_model_cpu_offload()
 
     #if load_mode != '4bit' :
